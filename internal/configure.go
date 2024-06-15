@@ -561,9 +561,9 @@ func ConfigureFailoverStorages() (failovers map[string]storage.HashableStorage, 
 }
 
 func AssertRequiredSettingsSet() error {
-	if !isAnyStorageSet() {
-		return errors.New("Failed to find any configured storage")
-	}
+	//if !isAnyStorageSet() {
+	//	return errors.New("Failed to find any configured storage")
+	//}
 
 	for setting, required := range conf.RequiredSettings {
 		isSet := viper.IsSet(setting)
