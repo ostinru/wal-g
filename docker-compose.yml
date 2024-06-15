@@ -615,6 +615,21 @@ services:
       - s3
       - s3-another
 
+  mysql_v8_tests:
+    build:
+      dockerfile: docker/mysql_tests/Dockerfile_v8
+      context: .
+    security_opt:
+      - seccomp:unconfined
+    image: wal-g/mysql_tests
+    container_name: wal-g_mysql_v8_tests
+    env_file:
+      - docker/common/common_walg.env
+    depends_on:
+      - s3
+    links:
+      - s3
+
   mariadb:
     build:
       dockerfile: docker/mariadb/Dockerfile

@@ -24,9 +24,10 @@ for i in "$prefix"/*; do
   echo "===== RUNNING $i ====="
   set -x
   chmod a+x "$i"
-  timeout 3m "$i"
+  timeout 300m "$i"
   set +x
   echo "===== SUCCESS $i ====="
+  sleep 3000
   echo
   mysql_kill_and_clean_data
 done

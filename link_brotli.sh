@@ -20,6 +20,6 @@ mkdir -p ${LIB_DIR}
 
 cd ${LIB_DIR}
 ../configure-cmake --disable-debug
-make
+# make
 
 cd ${CWD}

@@ -1,0 +1,45 @@
+FROM wal-g/golang:latest as build
+
+WORKDIR /go/src/github.com/wal-g/wal-g
+
+COPY go.mod go.mod
+COPY vendor/ vendor/
+COPY internal/ internal/
+COPY pkg/ pkg/
+COPY cmd/ cmd/
+COPY main/ main/
+COPY utility/ utility/
+
+RUN sed -i 's|#cgo LDFLAGS: -lbrotli.*|&-static -lbrotlicommon-static -lm|' \
+        vendor/github.com/google/brotli/go/cbrotli/cgo.go && \
+    cd main/mysql && \
+    go build -mod vendor -tags brotli -race -o wal-g -ldflags "-s -w -X main.buildDate=`date -u +%Y.%m.%d_%H:%M:%S`"
+
+FROM wal-g/mysql:latest
+COPY --from=build /go/src/github.com/wal-g/wal-g/main/mysql/wal-g /usr/bin
+
+RUN mkdir /root/testtools
+
+COPY docker/mysql_tests/scripts/ /tmp
+
+# update MySQL & percona-toolkit:
+RUN apt-get remove --yes \
+      mysql-server \
+      mysql-client \
+      percona-xtrabackup && \
+    apt-get install --yes --no-install-recommends --no-install-suggests \
+      lsb-release \
+      gnupg \
+      wget && \
+    wget https://repo.percona.com/apt/percona-release_latest.bionic_all.deb && \
+    dpkg -i percona-release_latest.bionic_all.deb && \
+    percona-release enable tools release && \
+    percona-release enable ps-80 release && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends --no-install-suggests \
+      percona-xtrabackup-80 \
+      percona-server-client \
+      percona-server-server
+
+
+CMD /tmp/run_integration_tests.sh -p /tmp/v8_tests

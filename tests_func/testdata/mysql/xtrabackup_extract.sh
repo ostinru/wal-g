@@ -52,7 +52,7 @@ mkdir -p xout
 cat stream.xb | xbstream -x -C xout
 find wout -type f | sort -u | xargs cat | md5sum > xout.sum
 
-diff wout.sum xout.sum
+diff -u wout.sum xout.sum
 
 rm -rf wout xout
 
@@ -61,15 +61,17 @@ cat <<EOF
 # test "xb extract" with --decompress
 ##########
 EOF
+rm -rf wout
 mkdir -p wout
 wal-g xb extract stream.xb wout/ --decompress
 find wout -type f | sort -u | xargs cat | md5sum > wout.sum
 
+rm -rf xout
 mkdir -p xout
 cat stream.xb | xbstream -x -C xout --decompress
 find wout -type f | sort -u | xargs cat | md5sum > xout.sum
 
-diff wout.sum xout.sum
+diff -u wout.sum xout.sum
 
 cat <<EOF
 ##########
@@ -106,7 +108,11 @@ EOF
 find wout -type f | sort -u | xargs python3 list_holes.py > wout.holes
 find xout -type f | sort -u | xargs python3 list_holes.py > xout.holes
 
-diff wout.holes xout.holes
+diff -u wout.holes xout.holes
+
+[ -s wout.holes ] || echo "List of punch holes is empty... Probably, file system desn't support 'fallocate'. This test is useless"
+[ -s wout.holes ] || exit 1
+
 
 #chown -R mysql:mysql $MYSQLDATA
 #service mysql start || (cat /var/log/mysql/error.log && false)
