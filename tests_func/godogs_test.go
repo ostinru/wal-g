@@ -33,6 +33,7 @@ var (
 	databases = map[string]bool{
 		"mongodb": true,
 		"redis":   true,
+		"mysql":   true,
 	}
 )
 
@@ -42,7 +43,7 @@ func init() {
 	pflag.BoolVar(&testOpts.clean, "tf.clean", true, "delete test environment")
 	pflag.BoolVar(&testOpts.debug, "tf.debug", false, "enable debug logging")
 	pflag.StringVar(&testOpts.featurePrefix, "tf.featurePrefix", "", "features prefix")
-	pflag.StringVar(&testOpts.database, "tf.database", "", "database name [mongodb|redis]")
+	pflag.StringVar(&testOpts.database, "tf.database", "", "database name [mongodb|redis|mysql]")
 
 	godog.BindCommandLineFlags("godog.", &godogOpts)
 }
